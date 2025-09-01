@@ -1,14 +1,26 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 
 export default function KeyValueEditor({ pairs, setPairs }) {
+	// Ensure all pairs have unique IDs
+	useEffect(() => {
+		const needsUpdate = pairs.some(pair => !pair.id);
+		if (needsUpdate) {
+			const updatedPairs = pairs.map((pair, index) => ({
+				...pair,
+				id: pair.id || `pair-${Date.now()}-${index}-${Math.random()}`
+			}));
+			setPairs(updatedPairs);
+		}
+	}, [pairs, setPairs]);
+
 	const updatePair = (index, key, value) => {
 		const newPairs = [...pairs];
 		newPairs[index] = { ...newPairs[index], [key]: value };
 		setPairs(newPairs);
 	};
 
-	const addPair = () => setPairs([...pairs, { key: '', value: '' }]);
+	const addPair = () => setPairs([...pairs, { key: '', value: '', id: `pair-${Date.now()}-${Math.random()}` }]);
 	
 	const removePair = (index) => {
 		const newPairs = pairs.filter((_, i) => i !== index);
@@ -18,7 +30,7 @@ export default function KeyValueEditor({ pairs, setPairs }) {
 	return (
 		<div className="space-y-2">
 			{pairs.map((pair, i) => (
-				<div key={i} className="flex gap-2 items-center">
+				<div key={pair.id} className="flex gap-2 items-center">
 					<input
 						className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
 						placeholder="Header name"
